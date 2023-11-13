@@ -1,0 +1,124 @@
+#!/bin/bash
+
+# script to setup wallpaper-slider, user can enter the path to their wallpaper directory and a delay
+function get_path {
+    FORMAT="/path/to/your/wallpapers/WALLPAPERS/"
+    PATH_PATTERN="^/.*$"
+    echo "Enter path to wallpapers folder: $FORMAT"
+    read path
+    if [[ "$path" =~ $PATH_PATTERN ]]; then
+        echo "Path to wallpapers: $path"
+        echo "$path" | cat > ./data/path.txt
+        return
+    else
+        echo "Invalid. Enter in format $FORMAT"
+        get_path
+    fi
+}
+
+function enter_delay {
+    FORMAT="Format: '5m' (5 minutes) | '8h' (8 hours) | '1d' (1 day)"
+    echo "Enter time delay [$FORMAT]:"
+    read delay
+
+    delay_length=${#delay}
+
+    # checks $delay contains only integers apart from last char
+    for ((i = 0; i < delay_length - 1; i++)); do
+        char="${delay:i:1}"
+        if ! [[ "$char" =~ [0-9] ]]; then
+            echo "Invalid. $FORMAT"
+            enter_delay
+        fi
+    done
+
+    # writes the entered delay into txt file to be used by WallpaperSlider.py
+    if [[ "$delay" == *m ]]; then
+        echo "Wallpaper change delay: ${delay%?} minutes"
+        echo "$delay" | cat > ./data/delay.txt
+        return
+    elif [[ "$delay" == *h ]]; then
+        echo "Wallpaper change delay: ${delay%?} hours"
+        echo "$delay" | cat > ./data/delay.txt
+        return
+    elif [[ "$delay" == *d ]]; then
+        echo "Wallpaper change delay: ${delay%?} days"
+        echo "$delay" | cat > ./data/delay.txt
+        return
+    else
+        echo "Invalid. $FORMAT"
+    fi
+}
+
+function print_version {
+    echo
+    echo "-------------------------------------------------------------------------------"
+    echo
+    echo "wallpaper_slider version: $(<./data/version.txt)"
+    echo
+    echo "-------------------------------------------------------------------------------"
+    echo
+}
+
+function print_entered_info {
+    delay=$(<./data/delay.txt)
+    echo "Wallpaper folder path:"
+    echo "$(<./data/path.txt)"
+    echo "Wallpaper change delay:"
+
+    if [[ $delay == *m ]]; then
+        echo "${delay%?} minutes"
+    elif [[ $delay == *h ]]; then
+        echo "${delay%?} hours"
+    elif [[ $delay == *d ]]; then
+        echo "${delay%?} days"
+    fi
+}
+
+function help {
+    echo "Options:"
+    echo "-p     Enter path to wallpapers directory"
+    echo "-d     Enter time delay between wallpaper changes in Seconds/Minutes/Hours/Days"
+    echo "-v     Print software version"
+    echo "-i     Print user's settings"
+    echo "-h     Print this help"
+}
+
+if [[ $# -eq 0 ]]; then
+    echo "wallpaper-slideshow: Try -h for help"
+    exit 1
+fi
+
+while getopts "p d v i h" option; do
+    case $option in
+        p)  # user enters absolute path to wallpapers
+            get_path
+            exit
+            ;;
+        
+        d)  # user enters time delay
+            enter_delay
+            exit
+            ;;
+        
+        v)  # displays software version
+            print_version
+            exit
+            ;;
+        
+        i) # displays current settings - path, delay
+            print_entered_info
+            exit
+            ;;
+
+        h) # display help
+            help
+            exit
+            ;;
+        
+        *) # if unknown, exits
+            echo "wallpaper-slideshow: Wrong invocation. Try -h for options."
+            exit
+            ;;
+    esac
+done
