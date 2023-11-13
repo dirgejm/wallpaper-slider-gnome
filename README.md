@@ -1,2 +1,5 @@
 # wallpaper-slideshow
-Wallpaper slideshow extension for gnome.
+Wallpaper slideshow tool for the gnome desktop environment.
+
+Prerequisites:
+Python3
