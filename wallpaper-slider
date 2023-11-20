@@ -8,7 +8,7 @@ function get_path {
     read path
     if [[ "$path" =~ $PATH_PATTERN ]]; then
         echo "Path to wallpapers: $path"
-        echo "$path" | cat > ./data/path.txt
+        echo "$path" | cat > /usr/local/bin/data/path.txt
         return
     else
         echo "Invalid. Enter in format $FORMAT"
@@ -33,17 +33,18 @@ function enter_delay {
     done
 
     # writes the entered delay into txt file to be used by WallpaperSlider.py
+    # PATHS NEED TO BE CHANGED TO REFLECT THOSE IN HOME DIRECTORY
     if [[ "$delay" == *m ]]; then
         echo "Wallpaper change delay: ${delay%?} minutes"
-        echo "$delay" | cat > ./data/delay.txt
+        echo "$delay" | cat > /usr/local/bin/data/delay.txt
         return
     elif [[ "$delay" == *h ]]; then
         echo "Wallpaper change delay: ${delay%?} hours"
-        echo "$delay" | cat > ./data/delay.txt
+        echo "$delay" | cat > /usr/local/bin/data/delay.txt
         return
     elif [[ "$delay" == *d ]]; then
         echo "Wallpaper change delay: ${delay%?} days"
-        echo "$delay" | cat > ./data/delay.txt
+        echo "$delay" | cat > /usr/local/bin/data/delay.txt
         return
     else
         echo "Invalid. $FORMAT"
@@ -54,16 +55,16 @@ function print_version {
     echo
     echo "-------------------------------------------------------------------------------"
     echo
-    echo "wallpaper_slider version: $(<./data/version.txt)"
+    echo "wallpaper_slider version: $(<"/$HOME/wallpaper-slider-gnome/data/version.txt")"
     echo
     echo "-------------------------------------------------------------------------------"
     echo
 }
 
 function print_entered_info {
-    delay=$(<./data/delay.txt)
+    delay=$(</usr/local/bin/data/delay.txt)
     echo "Wallpaper folder path:"
-    echo "$(<./data/path.txt)"
+    echo "$(</usr/local/bin/data/path.txt)"
     echo "Wallpaper change delay:"
 
     if [[ $delay == *m ]]; then
@@ -85,10 +86,12 @@ function help {
 }
 
 if [[ $# -eq 0 ]]; then
-    echo "wallpaper-slideshow: Try -h for help"
+    echo "wallpaper-slider: Try -h for help"
     exit 1
 fi
 
+
+# add option for manually starting the program and halting it, also removing the crontab entry
 while getopts "p d v i h" option; do
     case $option in
         p)  # user enters absolute path to wallpapers

@@ -8,11 +8,17 @@ import random
 
 index = 0
 
-with open("./data/path.txt", "r") as file:
+with open("/usr/local/bin/data/path.txt", "r") as file:
     pics = file.readline()
-PICS = pics.replace("\n", "")
+pics = pics.replace("\n", "")
 
-with open("./data/delay.txt", "r") as file:
+# ensures path is full path
+if not pics.endswith("/"):
+    PICS = f"{pics}/"
+else:
+    PICS = pics
+
+with open("/usr/local/bin/data/delay.txt", "r") as file:
     delay = file.readline()
 delay = delay.replace("\n", "")
 
@@ -59,4 +65,6 @@ def change_background(PICS, delay, index):
         index += 1
 
 if __name__ == "__main__":
-    change_background(PICS, translate_delay(delay), index)
+    
+    DELAY = translate_delay(delay)
+    change_background(PICS, DELAY, index)
