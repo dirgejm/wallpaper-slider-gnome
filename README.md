@@ -1,8 +1,6 @@
 # wallpaper-slider
 Wallpaper slideshow tool for the gnome desktop environment.
 
-Prerequisites:
-
-Gnome DE,
-
+Prerequisites: <br>
+Gnome DE <br>
 Python3
