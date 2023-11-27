@@ -5,10 +5,12 @@ from os import listdir
 from os.path import isfile, join
 import time
 import random
+from os.path import expanduser
 
+home = expanduser("~")
 index = 0
 
-with open("/usr/local/bin/data/path.txt", "r") as file:
+with open(f"{home}/wallpaper-slider-gnome/data/path.txt", "r") as file:
     pics = file.readline()
 pics = pics.replace("\n", "")
 
@@ -18,7 +20,7 @@ if not pics.endswith("/"):
 else:
     PICS = pics
 
-with open("/usr/local/bin/data/delay.txt", "r") as file:
+with open(f"{home}/wallpaper-slider-gnome/data/delay.txt", "r") as file:
     delay = file.readline()
 delay = delay.replace("\n", "")
 
