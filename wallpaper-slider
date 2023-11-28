@@ -8,7 +8,7 @@ function get_path {
     read path
     if [[ $path =~ $PATH_PATTERN ]]; then
         echo Path to wallpapers: $path
-        echo $path | cat > $HOME/wallpaper-slider-gnome/data/path.txt
+        echo $path | cat > $HOME/wallpaper-slider-data/data/path.txt
         return
     else
         echo Invalid. Enter in format $FORMAT
@@ -36,15 +36,15 @@ function enter_delay {
     # PATHS NEED TO BE CHANGED TO REFLECT THOSE IN HOME DIRECTORY
     if [[ "$delay" == *m ]]; then
         echo Wallpaper change delay: ${delay%?} minutes
-        echo $delay | cat > $HOME/wallpaper-slider-gnome/data/delay.txt
+        echo $delay | cat > $HOME/wallpaper-slider-data/data/delay.txt
         return
     elif [[ "$delay" == *h ]]; then
         echo Wallpaper change delay: ${delay%?} hours
-        echo $delay | cat > $HOME/wallpaper-slider-gnome/data/delay.txt
+        echo $delay | cat > $HOME/wallpaper-slider-data/data/delay.txt
         return
     elif [[ "$delay" == *d ]]; then
         echo Wallpaper change delay: ${delay%?} days
-        echo $delay | cat > $HOME/wallpaper-slider-gnome/data/delay.txt
+        echo $delay | cat > $HOME/wallpaper-slider-data/data/delay.txt
         return
     else
         echo Invalid. $FORMAT
@@ -55,16 +55,16 @@ function print_version {
     echo
     echo "-------------------------------------------------------------------------------"
     echo
-    echo wallpaper_slider version: $(<$HOME/wallpaper-slider-gnome/data/version.txt)
+    echo wallpaper_slider version: $(<$HOME/wallpaper-slider-data/data/version.txt)
     echo
     echo "-------------------------------------------------------------------------------"
     echo
 }
 
 function print_entered_info {
-    delay=$(<$HOME/wallpaper-slider-gnome/data/delay.txt)
+    delay=$(<$HOME/wallpaper-slider-data/data/delay.txt)
     echo Wallpaper folder path:
-    echo $(<$HOME/wallpaper-slider-gnome/data/path.txt)
+    echo $(<$HOME/wallpaper-slider-data/data/path.txt)
     echo Wallpaper change delay:
 
     if [[ $delay == *m ]]; then
@@ -87,6 +87,23 @@ function help {
     echo "-s     Stop running wallpaper-slider python program"
     echo "-h     Print this help"
     echo
+}
+
+function run {
+
+    if [ pgrep -f "python wallpaper_slider.py" >/dev/null ]; then
+        echo wallpaper-slider python script already running...
+    fi
+
+    if [ crontab -l | grep -i "@reboot python /usr/bin/wallpaper_slider.py &" >/dev/null ]; then
+        echo already set to run on startup...
+
+    else
+        python /usr/bin/wallpaper_slider.py &
+        echo wallpaper-slider: setting to run on startup...
+        (crontab -l 2>/dev/null; echo "@reboot python /usr/bin/wallpaper_slider.py &") | crontab -
+    fi
+
 }
 
 if [[ $# -eq 0 ]]; then
@@ -118,15 +135,14 @@ while getopts "p d v i r s h" option; do
             ;;
 
         r)  # runs the program and sets it to run on startup
-            echo wallpaper-slider: setting to run on startup...
-            python /usr/bin/wallpaper_slider.py &
-            (crontab -l 2>/dev/null; echo "@reboot python /usr/bin/wallpaper_slider.py &") | crontab -
+            run
             exit
             ;;
 
         s)  # stops running the program
-            echo wallpaper-slider: stopping wallpaper-slider python script...
+            echo wallpaper-slider: stopping wallpaper-slider python script, removing setting to run on startup...
             kill $(pgrep -f 'python /usr/bin/wallpaper_slider.py')
+            crontab -l | grep -v "@reboot python /usr/bin/wallpaper_slider.py &"  | crontab -
             exit
             ;;
 

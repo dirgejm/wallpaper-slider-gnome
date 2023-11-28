@@ -10,7 +10,7 @@ from os.path import expanduser
 home = expanduser("~")
 index = 0
 
-with open(f"{home}/wallpaper-slider-gnome/data/path.txt", "r") as file:
+with open(f"{home}/wallpaper-slider-data/data/path.txt", "r") as file:
     pics = file.readline()
 pics = pics.replace("\n", "")
 
@@ -20,7 +20,7 @@ if not pics.endswith("/"):
 else:
     PICS = pics
 
-with open(f"{home}/wallpaper-slider-gnome/data/delay.txt", "r") as file:
+with open(f"{home}/wallpaper-slider-data/data/delay.txt", "r") as file:
     delay = file.readline()
 delay = delay.replace("\n", "")
 

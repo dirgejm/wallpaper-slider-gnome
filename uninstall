@@ -1,11 +1,15 @@
 #!/bin/bash
-if ! [ -d /$HOME/wallpaper-slider-data ] && ! [ -f /usr/local/bin/wallpaper-slider ] && ! [ -f /usr/bin/wallpaper_slider.py ]; then
-    echo "wallpaper-slider is not installed"
+
+USER_HOME=$(getent passwd $SUDO_USER | cut -d: -f6)
+
+if ! [ -d $USER_HOME/wallpaper-slider-data ] && ! [ -f /usr/local/bin/wallpaper-slider ] && ! [ -f /usr/bin/wallpaper_slider.py ]; then
+    echo wallpaper-slider is not installed
 else
     # requires sudo permissions, run 'sudo sh uninstall.sh'
-    rm -rf $HOME/wallpaper-slider-data
+    rm -r $USER_HOME/wallpaper-slider-data
     rm /usr/local/bin/wallpaper-slider 
     rm /usr/bin/wallpaper_slider.py
+    crontab -l | grep -v "@reboot python /usr/bin/wallpaper_slider.py &"  | crontab -
 
     echo wallpaper-slider-gnome uninstalled successfully!
 fi
