@@ -32,7 +32,7 @@ function enter_delay {
         fi
     done
 
-    # writes the entered delay into txt file to be used by WallpaperSlider.py
+    # writes the entered delay into txt file to be used by wallpaper_slid.py
     # PATHS NEED TO BE CHANGED TO REFLECT THOSE IN HOME DIRECTORY
     if [[ "$delay" == *m ]]; then
         echo Wallpaper change delay: ${delay%?} minutes
@@ -119,14 +119,14 @@ while getopts "p d v i r s h" option; do
 
         r)  # runs the program and sets it to run on startup
             echo wallpaper-slider: setting to run on startup...
-            python /usr/bin/WallpaperSlider.py &
-            (crontab -l 2>/dev/null; echo "@reboot python /usr/bin/WallpaperSlider.py &") | crontab -
+            python /usr/bin/wallpaper_slider.py &
+            (crontab -l 2>/dev/null; echo "@reboot python /usr/bin/wallpaper_slider.py &") | crontab -
             exit
             ;;
 
         s)  # stops running the program
             echo wallpaper-slider: stopping wallpaper-slider python script...
-            kill $(pgrep -f 'python /usr/bin/WallpaperSlider.py')
+            kill $(pgrep -f 'python /usr/bin/wallpaper_slider.py')
             exit
             ;;
 
