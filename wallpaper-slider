@@ -94,7 +94,7 @@ function run {
     if [ pgrep -f "python wallpaper_slider.py" >/dev/null ]; then
         echo wallpaper-slider python script already running...
     fi
-
+    # change from using cron to systemmd
     if [ crontab -l | grep -i "@reboot python /usr/bin/wallpaper_slider.py &" >/dev/null ]; then
         echo already set to run on startup...
 
