@@ -8,10 +8,9 @@ if [ -d $USER_HOME/wallpaper-slider-data ] && [ -f /usr/local/bin/wallpaper-slid
     echo invoke with "'wallpaper-slider'" command...
     echo
 else
+    # first command is not executed by super user
+    sudo -u $SUDO_USER <cp -r wallpaper-slider-data $USER_HOME>
     # requires sudo permissions, run 'sudo ./install'
-    cp -r wallpaper-slider-data $USER_HOME
-    # CAREFUL, NEXT COMMAND BROKE PC
-    # chown $(whoami) $USER_HOME/wallpaper-slider-data
     cp wallpaper-slider /usr/local/bin
     chmod +x /usr/local/bin/wallpaper-slider
     chmod +rwx $USER_HOME/wallpaper-slider-data

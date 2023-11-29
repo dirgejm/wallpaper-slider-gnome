@@ -24,7 +24,6 @@ with open(f"{home}/wallpaper-slider-data/data/delay.txt", "r") as file:
     delay = file.readline()
 delay = delay.replace("\n", "")
 
-# translates delay from format ex. "2m" to/opt/auto-cpufreq/venv 120 seconds for change_background
 def translate_delay(delay):
     minute = 60
     hour = 3600
