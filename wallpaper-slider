@@ -32,8 +32,7 @@ function enter_delay {
         fi
     done
 
-    # writes the entered delay into txt file to be used by wallpaper_slid.py
-    # PATHS NEED TO BE CHANGED TO REFLECT THOSE IN HOME DIRECTORY
+    # writes the entered delay into txt file to be used by wallpaper_slider.py
     if [[ "$delay" == *m ]]; then
         echo Wallpaper change delay: ${delay%?} minutes
         echo $delay | cat > $HOME/wallpaper-slider-data/data/delay.txt

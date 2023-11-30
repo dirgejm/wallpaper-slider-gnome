@@ -10,6 +10,7 @@ if [ -d $USER_HOME/wallpaper-slider-data ] && [ -f /usr/local/bin/wallpaper-slid
 else
     # first command is not executed by super user
     sudo -u $SUDO_USER <cp -r wallpaper-slider-data $USER_HOME>
+    
     # requires sudo permissions, run 'sudo ./install'
     cp wallpaper-slider /usr/local/bin
     chmod +x /usr/local/bin/wallpaper-slider
