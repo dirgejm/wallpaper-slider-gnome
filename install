@@ -5,12 +5,13 @@ USER_HOME=$(getent passwd $SUDO_USER | cut -d: -f6)
 if [ -d $USER_HOME/wallpaper-slider-data ] && [ -f /usr/local/bin/wallpaper-slider ] && [ -f /usr/bin/wallpaper_slider.py ]; then
     echo
     echo wallpaper-slider installed with version $(<$USER_HOME/wallpaper-slider-data/data/version.txt)
+    echo
     echo invoke with "'wallpaper-slider'" command...
     echo
 else
     # first command is not executed by super user
-    sudo -u $SUDO_USER <cp -r wallpaper-slider-data $USER_HOME>
-    
+    sudo -u $SUDO_USER cp -r wallpaper-slider-data $USER_HOME
+
     # requires sudo permissions, run 'sudo ./install'
     cp wallpaper-slider /usr/local/bin
     chmod +x /usr/local/bin/wallpaper-slider
@@ -19,6 +20,7 @@ else
 
     echo
     echo wallpaper-slider-gnome installed successfully!
+    echo
     echo invoke with "'wallpaper-slider'" command...
     echo
 fi
