@@ -4,14 +4,33 @@
 function get_path {
     FORMAT=/path/to/your/wallpapers/WALLPAPERS/
     PATH_PATTERN="^/.*$"
-    echo Enter path to wallpapers folder: $FORMAT
+    echo Directory must only contain png, jpeg, or svg files
+    echo Enter full path to wallpapers folder: $FORMAT
     read path
-    if [[ $path =~ $PATH_PATTERN ]]; then
+    if [[ $path =~ $PATH_PATTERN ]] && [[ -d "$path" ]]; then
+
+        for file in "$path"/*; do
+            if ! [ -f "$file" ]; then
+                echo detected subdirectory, terminating process...
+                return
+            fi
+
+            file_type=$(file -b --mime-type "$file")
+            
+            if [ "$file_type" != "image/jpeg" ] && [ "$file_type" != "image/png" ] && [ "$file_type" != "image/svg" ]; then
+                echo  detected file format other than png / jpeg / svg, terminating process...
+                echo
+                echo file: $file
+                echo file type: $file_type
+                return
+            fi
+        done
+
         echo Path to wallpapers: $path
         echo $path | cat > $HOME/wallpaper-slider-data/data/path.txt
         return
     else
-        echo Invalid. Enter in format $FORMAT
+        echo Invalid directory. Enter in format $FORMAT
         get_path
     fi
 }
@@ -82,28 +101,76 @@ function help {
     echo "-d     Enter time delay between wallpaper changes in Seconds/Minutes/Hours/Days"
     echo "-v     Print software version"
     echo "-i     Print user's settings"
-    echo "-r     Run wallpaper-slider python program if it is not running already"
-    echo "-s     Stop running wallpaper-slider python program"
+    echo "-r     REQUIRES ROOT: Run wallpaper-slider Python program if it is not running already"
+    echo "-s     REQUIRES ROOT: Stop running wallpaper-slider Python program"
     echo "-h     Print this help"
     echo
 }
 
 function run {
 
-    if [ pgrep -f "python wallpaper_slider.py" >/dev/null ]; then
-        echo wallpaper-slider python script already running...
+    if [ "$EUID" -ne 0 ]; then
+        echo wallpaper-slider: root privileges required
+        exit 1
     fi
-    # change from using cron to systemmd
-    if [ crontab -l | grep -i "@reboot python /usr/bin/wallpaper_slider.py &" >/dev/null ]; then
-        echo already set to run on startup...
+    
+    service_file="/etc/systemd/system/wallpaper-slider-startup.service"
+    script_path="/usr/bin/wallpaper_slider.py"
 
+    if sudo systemctl is-active --quiet wallpaper-slider-startup.service && [[ -f $service_file ]]; then
+        echo "wallpaper-slider: already set to run on startup, exiting..."
+        return
+    fi
+
+    echo wallpaper-slider: setting to run on startup...
+    # create systemmd service file
+
+    cat <<EOF > "$service_file"
+[Unit]
+Description=Run wallpaper-slider Python script at startup
+
+[Service]
+ExecStart=$script_path
+Restart=always
+RemainAfterExit=yes
+
+[Install]
+WantedBy=default.target
+EOF
+
+    sudo systemctl daemon-reload
+    sudo systemctl enable wallpaper-slider-startup.service
+    if ! pgrep -f "sudo python3 /usr/bin/wallpaper_slider.py" >/dev/null; then
+        echo running script...
+        sudo python3 /usr/bin/wallpaper_slider.py &
+        echo wallpaper-slider: setup complete.
+        exit 0
     else
-        python /usr/bin/wallpaper_slider.py &
-        echo wallpaper-slider: setting to run on startup...
-        (crontab -l 2>/dev/null; echo "@reboot python /usr/bin/wallpaper_slider.py &") | crontab -
+        echo wallpaper-slider: setup complete.
+    fi
+}
+
+function stop {
+
+    if [ "$EUID" -ne 0 ]; then
+        echo wallpaper-slider: root privileges required
+        exit 1
     fi
 
+    service_file="/etc/systemd/system/wallpaper-slider-startup.service"
+
+    if [[ -f $service_file ]]; then
+        echo wallpaper-slider: stopping, removing setting to run on startup...
+        sudo systemctl disable wallpaper-slider-startup.service
+        # kill $(pgrep -f 'python /usr/bin/wallpaper_slider.py')
+        sudo rm "$service_file"
+    else
+        echo wallpaper-slider: not set to run on startup
+        return
+    fi
+    
 }
+
 
 if [[ $# -eq 0 ]]; then
     echo "wallpaper-slider: try -h for help"
@@ -139,9 +206,7 @@ while getopts "p d v i r s h" option; do
             ;;
 
         s)  # stops running the program
-            echo wallpaper-slider: stopping wallpaper-slider python script, removing setting to run on startup...
-            kill $(pgrep -f 'python /usr/bin/wallpaper_slider.py')
-            crontab -l | grep -v "@reboot python /usr/bin/wallpaper_slider.py &"  | crontab -
+            stop
             exit
             ;;
 

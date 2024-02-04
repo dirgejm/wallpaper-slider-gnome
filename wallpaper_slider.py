@@ -7,22 +7,29 @@ import time
 import random
 from os.path import expanduser
 
-home = expanduser("~")
+user = expanduser("~" if "SUDO_USER" not in os.environ else os.environ["SUDO_USER"])
+#NEED TO GET HOMEPATH FOR homepath.txt to use in f strings
+home = "/home/" + str(user)
+print(home)
+
 index = 0
 
 with open(f"{home}/wallpaper-slider-data/data/path.txt", "r") as file:
     pics = file.readline()
 pics = pics.replace("\n", "")
+print(pics)
 
 # ensures path is full path
 if not pics.endswith("/"):
     PICS = f"{pics}/"
 else:
     PICS = pics
+    print(PICS)
 
 with open(f"{home}/wallpaper-slider-data/data/delay.txt", "r") as file:
     delay = file.readline()
 delay = delay.replace("\n", "")
+print(delay)
 
 def translate_delay(delay):
     minute = 60

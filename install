@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ "$EUID" -ne 0 ]; then
+    echo Error: wallpaper-slider requires root to install
+    exit 1
+fi
+
 USER_HOME=$(getent passwd $SUDO_USER | cut -d: -f6)
 # checks if files exist in home dir, if wallpaper-slider file is in usr/loca/bin
 if [ -d $USER_HOME/wallpaper-slider-data ] && [ -f /usr/local/bin/wallpaper-slider ] && [ -f /usr/bin/wallpaper_slider.py ]; then
@@ -11,8 +16,9 @@ if [ -d $USER_HOME/wallpaper-slider-data ] && [ -f /usr/local/bin/wallpaper-slid
 else
     # first command is not executed by super user
     sudo -u $SUDO_USER cp -r wallpaper-slider-data $USER_HOME
-
+    echo $SUDO_USER
     # requires sudo permissions, run 'sudo ./install'
+    echo "$USER_HOME" | cat > /home/$SUDO_USER/wallpaper-slider-data/data/homepath.txt
     cp wallpaper-slider /usr/local/bin
     chmod +x /usr/local/bin/wallpaper-slider
     chmod +rwx $USER_HOME/wallpaper-slider-data
