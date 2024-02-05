@@ -7,13 +7,15 @@ fi
 
 USER_HOME=$(getent passwd $SUDO_USER | cut -d: -f6)
 
-if ! [ -d $USER_HOME/wallpaper-slider-data ] && ! [ -f /usr/local/bin/wallpaper-slider ] && ! [ -f /usr/bin/wallpaper_slider.py ] && ! [ -f /etc/systemd/system/wallpaper-slider-startup.service ]; then
+if ! [ -d $USER_HOME/wallpaper-slider-data ] && ! [ -f /usr/local/bin/wallpaper-slider ] && ! [ -f /usr/bin/wallpaper_slider.py ] && ! [ -f /etc/systemd/system/wallpaper-slider-startup.service ] && ! [ -f /etc/wallpaper-slider-gnome.txt ]; then
     echo wallpaper-slider is not installed
 else
     # requires sudo permissions, run 'sudo sh uninstall.sh'
     rm -r $USER_HOME/wallpaper-slider-data
     rm /usr/local/bin/wallpaper-slider 
+    pkill -f "wallpaper_slider.py"
     rm /usr/bin/wallpaper_slider.py
+    rm /etc/wallpaper-slider-gnome.txt
 
     if ! [ -f /etc/systemd/system/wallpaper-slider-startup.service ]; then
         echo wallpaper-slider-gnome uninstalled successfully!

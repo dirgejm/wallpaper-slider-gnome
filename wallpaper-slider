@@ -37,7 +37,8 @@ function get_path {
 
 function enter_delay {
     FORMAT="Format: '5m' (5 minutes) | '8h' (8 hours) | '1d' (1 day)"
-    echo "Enter time delay [$FORMAT]:"
+    echo "Enter time delay | [$FORMAT]"
+    echo "Example: for an interval of 10 minutes, you would enter '10m'"
     read delay
 
     delay_length=${#delay}
@@ -80,6 +81,7 @@ function print_version {
 }
 
 function print_entered_info {
+    service_file="/etc/systemd/system/wallpaper-slider-startup.service"
     delay=$(<$HOME/wallpaper-slider-data/data/delay.txt)
     echo Wallpaper folder path:
     echo $(<$HOME/wallpaper-slider-data/data/path.txt)
@@ -92,17 +94,30 @@ function print_entered_info {
     elif [[ $delay == *d ]]; then
         echo ${delay%?} days
     fi
+    echo Set to run on startup?
+    if [[ -f $service_file ]]; then
+        echo True
+    else
+        echo False
+    fi
 }
 
 function help {
     echo
     echo "Options:"
+    echo
     echo "-p     Enter path to wallpapers directory"
+    echo
     echo "-d     Enter time delay between wallpaper changes in Seconds/Minutes/Hours/Days"
+    echo
+    echo "-a     Activates wallpaper-slider script. If already active, stops the wallpaper-slider script"
+    echo
+    echo "-r     REQUIRES ROOT: Set wallpaper-slider to run on startup. If already set to run on startup, running this command again will remove the startup script"
+    echo
     echo "-v     Print software version"
+    echo
     echo "-i     Print user's settings"
-    echo "-r     REQUIRES ROOT: Run wallpaper-slider Python program if it is not running already"
-    echo "-s     REQUIRES ROOT: Stop running wallpaper-slider Python program"
+    echo
     echo "-h     Print this help"
     echo
 }
@@ -113,13 +128,16 @@ function run {
         echo wallpaper-slider: root privileges required
         exit 1
     fi
-    
+
     service_file="/etc/systemd/system/wallpaper-slider-startup.service"
     script_path="/usr/bin/wallpaper_slider.py"
 
-    if sudo systemctl is-active --quiet wallpaper-slider-startup.service && [[ -f $service_file ]]; then
-        echo "wallpaper-slider: already set to run on startup, exiting..."
-        return
+    if [[ -f $service_file ]]; then
+        echo wallpaper-slider: deactivating run on startup...
+        systemctl disable wallpaper-slider-startup.service
+        systemctl daemon-reload
+        rm "$service_file"
+        exit 0
     fi
 
     echo wallpaper-slider: setting to run on startup...
@@ -128,47 +146,36 @@ function run {
     cat <<EOF > "$service_file"
 [Unit]
 Description=Run wallpaper-slider Python script at startup
+After=default.target
 
 [Service]
-ExecStart=$script_path
-Restart=always
+Type=simple
 RemainAfterExit=yes
+ExecStart=$script_path
+TimeoutStartSec=0
 
 [Install]
 WantedBy=default.target
 EOF
 
-    sudo systemctl daemon-reload
-    sudo systemctl enable wallpaper-slider-startup.service
-    if ! pgrep -f "sudo python3 /usr/bin/wallpaper_slider.py" >/dev/null; then
-        echo running script...
-        sudo python3 /usr/bin/wallpaper_slider.py &
-        echo wallpaper-slider: setup complete.
-        exit 0
-    else
-        echo wallpaper-slider: setup complete.
-    fi
+    systemctl daemon-reload
+    systemctl enable wallpaper-slider-startup.service
 }
 
-function stop {
+# Runs the script, stops script if already running
+function activate {
+    prgm="wallpaper_slider.py"
 
-    if [ "$EUID" -ne 0 ]; then
-        echo wallpaper-slider: root privileges required
-        exit 1
+    if pgrep -f "$prgm" > /dev/null; then
+        echo wallpaper-slider: deactivating script...
+        pkill -f "wallpaper_slider.py"
+        exit 0
     fi
 
-    service_file="/etc/systemd/system/wallpaper-slider-startup.service"
+    echo wallpaper-slider: running script...
+    nohup python3 /usr/bin/"$prgm" > /dev/null 2>&1 &
+    exit 0
 
-    if [[ -f $service_file ]]; then
-        echo wallpaper-slider: stopping, removing setting to run on startup...
-        sudo systemctl disable wallpaper-slider-startup.service
-        # kill $(pgrep -f 'python /usr/bin/wallpaper_slider.py')
-        sudo rm "$service_file"
-    else
-        echo wallpaper-slider: not set to run on startup
-        return
-    fi
-    
 }
 
 
@@ -178,7 +185,7 @@ if [[ $# -eq 0 ]]; then
 fi
 
 # add option for manually starting the program and halting it, also removing the crontab entry
-while getopts "p d v i r s h" option; do
+while getopts "p d v i r a h" option; do
     case $option in
         p)  # user enters absolute path to wallpapers
             get_path
@@ -205,8 +212,8 @@ while getopts "p d v i r s h" option; do
             exit
             ;;
 
-        s)  # stops running the program
-            stop
+        a)  # stops running the program
+            activate
             exit
             ;;
 
@@ -216,7 +223,7 @@ while getopts "p d v i r s h" option; do
             ;;
         
         *) # if unknown, exits
-            echo "wallpaper-slideshow: wrong invocation, try -h for options."
+            echo "wallpaper-slider: wrong invocation, try -h for options."
             exit
             ;;
     esac
