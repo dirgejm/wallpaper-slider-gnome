@@ -81,7 +81,7 @@ function print_version {
 }
 
 function print_entered_info {
-    service_file="/etc/systemd/system/wallpaper-slider-startup.service"
+    service_file="/etc/systemd/system/$script_name"
     delay=$(<$HOME/wallpaper-slider-data/data/delay.txt)
     echo Wallpaper folder path:
     echo $(<$HOME/wallpaper-slider-data/data/path.txt)
@@ -103,6 +103,7 @@ function print_entered_info {
 }
 
 function help {
+    
     echo
     echo "Options:"
     echo
@@ -112,7 +113,7 @@ function help {
     echo
     echo "-a     Activates wallpaper-slider script. If already active, stops the wallpaper-slider script"
     echo
-    echo "-r     REQUIRES ROOT: Set wallpaper-slider to run on startup. If already set to run on startup, running this command again will remove the startup script"
+    echo "-r     Set wallpaper-slider to run on startup. If already set to run on startup, running this command again will remove the startup script"
     echo
     echo "-v     Print software version"
     echo
@@ -122,44 +123,41 @@ function help {
     echo
 }
 
+#make python venv
 function run {
 
-    if [ "$EUID" -ne 0 ]; then
-        echo wallpaper-slider: root privileges required
-        exit 1
-    fi
+    USER_NAME=$(logname)
 
-    service_file="/etc/systemd/system/wallpaper-slider-startup.service"
+    script_name="wallpaper-slider-startup.service"
+    service_file="/home/$USER_NAME/.config/systemd/user/$script_name"
     script_path="/usr/bin/wallpaper_slider.py"
 
     if [[ -f $service_file ]]; then
         echo wallpaper-slider: deactivating run on startup...
-        systemctl disable wallpaper-slider-startup.service
-        systemctl daemon-reload
+        systemctl --user disable $script_name
+        systemctl --user daemon-reload
         rm "$service_file"
         exit 0
     fi
 
     echo wallpaper-slider: setting to run on startup...
-    # create systemmd service file
-
-    cat <<EOF > "$service_file"
+    
+    # creates systemmd service file
+    cat <<EOF > $service_file
 [Unit]
 Description=Run wallpaper-slider Python script at startup
-After=default.target
+After=network.target
 
 [Service]
-Type=simple
-RemainAfterExit=yes
-ExecStart=$script_path
-TimeoutStartSec=0
+ExecStart=/usr/bin/python3 "$script_path"
 
 [Install]
-WantedBy=default.target
+WantedBy=multi-user.target
 EOF
 
-    systemctl daemon-reload
-    systemctl enable wallpaper-slider-startup.service
+
+    systemctl --user daemon-reload
+    systemctl --user enable --now "$script_name"
 }
 
 # Runs the script, stops script if already running
@@ -184,7 +182,6 @@ if [[ $# -eq 0 ]]; then
     exit 1
 fi
 
-# add option for manually starting the program and halting it, also removing the crontab entry
 while getopts "p d v i r a h" option; do
     case $option in
         p)  # user enters absolute path to wallpapers

@@ -16,6 +16,7 @@ else
     pkill -f "wallpaper_slider.py"
     rm /usr/bin/wallpaper_slider.py
     rm /etc/wallpaper-slider-gnome.txt
+    rm $USER_HOME/.config/systemd/user/wallpaper-slider-startup.service
 
     if ! [ -f /etc/systemd/system/wallpaper-slider-startup.service ]; then
         echo wallpaper-slider-gnome uninstalled successfully!
