@@ -1,4 +1,4 @@
-# wallpaper-slider-for-gnome
+# Wallpaper slideshow tool for Gnome
 Wallpaper slideshow tool for the gnome desktop environment.
 
 Prerequisites: <br>
