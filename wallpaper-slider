@@ -130,7 +130,7 @@ function run {
 
     script_name="wallpaper-slider-startup.service"
     service_file="/home/$USER_NAME/.config/systemd/user/$script_name"
-    script_path="/usr/bin/wallpaper_slider.py"
+    script_path="/home/$USER_NAME/wallpaper-slider-data/.bin/wallpaper_slider.py"
 
     if [[ -f $service_file ]]; then
         echo wallpaper-slider: deactivating run on startup...
@@ -149,7 +149,9 @@ Description=Run wallpaper-slider Python script at startup
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/python3 "$script_path"
+ExecStart=/usr/bin/python3 $script_path
+Restart=on-failure
+RestartSec=5
 
 [Install]
 WantedBy=multi-user.target
@@ -162,16 +164,17 @@ EOF
 
 # Runs the script, stops script if already running
 function activate {
-    prgm="wallpaper_slider.py"
+    USER_NAME=$(logname)
+    script_path="/home/$USER_NAME/wallpaper-slider-data/.bin/wallpaper_slider.py"
 
-    if pgrep -f "$prgm" > /dev/null; then
+    if pgrep -f "wallpaper_slider.py" > /dev/null; then
         echo wallpaper-slider: deactivating script...
         pkill -f "wallpaper_slider.py"
         exit 0
     fi
 
     echo wallpaper-slider: running script...
-    nohup python3 /usr/bin/"$prgm" > /dev/null 2>&1 &
+    nohup python3 "$script_path" > /dev/null 2>&1 &
     exit 0
 
 }

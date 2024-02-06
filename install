@@ -19,7 +19,8 @@ else
     cp wallpaper-slider /usr/local/bin
     chmod +x /usr/local/bin/wallpaper-slider
     chmod +rwx $USER_HOME/wallpaper-slider-data
-    cp wallpaper_slider.py /usr/bin
+    # placing in home directory instead
+    # cp wallpaper_slider.py /usr/bin
 
     echo
     echo wallpaper-slider-gnome installed successfully!

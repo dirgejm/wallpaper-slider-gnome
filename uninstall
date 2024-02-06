@@ -14,7 +14,7 @@ else
     rm -r $USER_HOME/wallpaper-slider-data
     rm /usr/local/bin/wallpaper-slider 
     pkill -f "wallpaper_slider.py"
-    rm /usr/bin/wallpaper_slider.py
+    # rm /usr/bin/wallpaper_slider.py
     rm /etc/wallpaper-slider-gnome.txt
     rm $USER_HOME/.config/systemd/user/wallpaper-slider-startup.service
 
