@@ -81,7 +81,9 @@ function print_version {
 }
 
 function print_entered_info {
-    service_file="/etc/systemd/system/$script_name"
+    USER_NAME=$(logname)
+    script_name="wallpaper-slider-startup.service"
+    service_file="/home/$USER_NAME/.config/systemd/user/$script_name"
     delay=$(<$HOME/wallpaper-slider-data/data/delay.txt)
     echo Wallpaper folder path:
     echo $(<$HOME/wallpaper-slider-data/data/path.txt)
