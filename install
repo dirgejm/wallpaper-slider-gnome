@@ -35,7 +35,5 @@ echo enter "'wallpaper-slider -p'" and enter the path to your directory of wallp
 echo
 echo enter "'wallpaper-slider -d'" and enter your desired delay in the appropriate format
 echo
-echo enter "'sudo wallpaper-slider -r'" to set the script to run automatically on startup
-echo
-echo "finally enter 'wallpaper-slider -a' (make sure to run without SUDO, otherwise it will not work) to activate the program. Enjoy!"
+echo enter "'wallpaper-slider -r'" to set the script to run automatically on startup
 echo
