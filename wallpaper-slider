@@ -150,8 +150,9 @@ function run {
 
     echo wallpaper-slider: setting to run on startup...
     
-    # if user's os does not have user level systemd support, run at system level
+    # Checks if os has user level systemd directory, performs at system level
     if ! [[ -d "/home/$USER_NAME/.config/systemd/" ]]; then
+        echo Placing in home systemd directory...
         sudo cat <<EOF > $service_file_sys
 [Unit]
 Description=Run wallpaper-slider Python script at startup
@@ -170,6 +171,7 @@ EOF
         exit 0
     fi
 
+    echo Placing in home systemd directory...
     # creates systemmd service file
     cat <<EOF > $service_file_home
 [Unit]
@@ -182,7 +184,7 @@ Restart=on-failure
 RestartSec=5
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=default.target
 EOF
 
 
