@@ -30,7 +30,6 @@ else
     echo
 fi
 
-echo
 echo Setup:
 echo
 echo "'wallpaper-slider -p'" Enter the path to your directory of wallpapers.

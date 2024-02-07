@@ -72,9 +72,9 @@ function enter_delay {
 
 function print_information {
     USER_NAME=$(logname)
-    script_name="wallpaper-slider.service"
-    service_file_home="/home/$USER_NAME/.config/systemd/user/$script_name"
-    service_file_sys="/etc/systemd/user/$script_name"
+    service_name="wallpaper-slider.service"
+    service_file_home="/home/$USER_NAME/.config/systemd/user/$service_name"
+    service_file_sys="/etc/systemd/user/$service_name"
     delay=$(<$HOME/wallpaperslider/data/delay.txt)
     echo Wallpaper folder path:
     echo $(<$HOME/wallpaperslider/data/path.txt)
@@ -128,21 +128,21 @@ function run {
 
     USER_NAME=$(logname)
 
-    script_name="wallpaper-slider.service"
-    service_file_home="/home/$USER_NAME/.config/systemd/user/$script_name"
-    service_file_sys="/etc/systemd/user/$script_name"
+    service_name="wallpaper-slider.service"
+    service_file_home="/home/$USER_NAME/.config/systemd/user/$service_name"
+    service_file_sys="/etc/systemd/system/$service_name"
     script_path="/home/$USER_NAME/wallpaperslider/.bin/wallpaper_slider.py"
 
     if [[ -f $service_file_home ]]; then
         echo wallpaper-slider: deactivating run on startup...
-        systemctl --user disable $script_name
+        systemctl --user disable $service_name
         systemctl --user daemon-reload
         rm "$service_file_home"
         exit 0
 
     elif [[ -f $service_file_sys ]]; then
         echo wallpaper-slider: deactivating run on startup...
-        systemctl disable $script_name
+        systemctl disable $service_name
         systemctl daemon-reload
         sudo rm "$service_file_sys"
         exit 0;
@@ -151,9 +151,10 @@ function run {
     echo wallpaper-slider: setting to run on startup...
     
     # Checks if os has user level systemd directory, performs at system level
-    if ! [[ -d "/home/$USER_NAME/.config/systemd/" ]]; then
-        echo Placing in home systemd directory...
-        sudo cat <<EOF > $service_file_sys
+    if [[ -d "/home/$USER_NAME/.config/systemd/" ]]; then
+        echo Placing in root systemd directory...
+        export DISPLAY=:0
+        sudo tee "$service_file_sys" > /dev/null <<EOF
 [Unit]
 Description=Run wallpaper-slider Python script at startup
 After=network.target
@@ -166,8 +167,8 @@ RestartSec=5
 [Install]
 WantedBy=multi-user.target
 EOF
-        systemctl daemon-reload
-        systemctl enable --now "$script_name"
+        sudo systemctl daemon-reload
+        systemctl enable --now "$service_name"
         exit 0
     fi
 
@@ -189,7 +190,7 @@ EOF
 
 
     systemctl --user daemon-reload
-    systemctl --user enable --now "$script_name"
+    systemctl --user enable --now "$service_name"
 }
 
 if [[ $# -eq 0 ]]; then
