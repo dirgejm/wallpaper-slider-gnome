@@ -4,7 +4,7 @@
 function get_path {
     FORMAT=/path/to/your/wallpapers/WALLPAPERS/
     PATH_PATTERN="^/.*$"
-    echo Directory must only contain png, jpeg, or svg files
+    echo Directory must only contain png, jpeg, svg, tiff, and gif files
     echo Enter full path to wallpapers folder: $FORMAT
     read path
     if [[ $path =~ $PATH_PATTERN ]] && [[ -d "$path" ]]; then
@@ -17,7 +17,7 @@ function get_path {
 
             file_type=$(file -b --mime-type "$file")
             
-            if [ "$file_type" != "image/jpeg" ] && [ "$file_type" != "image/png" ] && [ "$file_type" != "image/svg" ] && [ "$file_type" != "image/svg+xml" ]; then
+            if [ "$file_type" != "image/jpeg" ] && [ "$file_type" != "image/png" ] && [ "$file_type" != "image/svg" ] && [ "$file_type" != "image/svg+xml" ] && [ "$file_type" != "image/tiff" ] && [ "$file_type" != "image/gif" ]; then
                 echo  detected file format other than png / jpeg / svg, terminating process...
                 echo
                 echo file: $file
@@ -27,7 +27,7 @@ function get_path {
         done
 
         echo Path to wallpapers: $path
-        echo $path | cat > $HOME/wallpaper-slider-data/data/path.txt
+        echo $path | cat > $HOME/wallpaperslider/data/path.txt
         return
     else
         echo Invalid directory. Enter in format $FORMAT
@@ -38,7 +38,7 @@ function get_path {
 function enter_delay {
     FORMAT="Format: '5m' (5 minutes) | '8h' (8 hours) | '1d' (1 day)"
     echo "Enter time delay | [$FORMAT]"
-    echo "Example: for an interval of 10 minutes, you would enter '10m'"
+    echo "Example: For an interval of 10 minutes enter '10m'."
     read delay
 
     delay_length=${#delay}
@@ -54,39 +54,30 @@ function enter_delay {
 
     # writes the entered delay into txt file to be used by wallpaper_slider.py
     if [[ "$delay" == *m ]]; then
-        echo Wallpaper change delay: ${delay%?} minutes
-        echo $delay | cat > $HOME/wallpaper-slider-data/data/delay.txt
+        echo Wallpaper change delay: ${delay%?} minutes.
+        echo $delay | cat > $HOME/wallpaperslider/data/delay.txt
         return
     elif [[ "$delay" == *h ]]; then
-        echo Wallpaper change delay: ${delay%?} hours
-        echo $delay | cat > $HOME/wallpaper-slider-data/data/delay.txt
+        echo Wallpaper change delay: ${delay%?} hours.
+        echo $delay | cat > $HOME/wallpaperslider/data/delay.txt
         return
     elif [[ "$delay" == *d ]]; then
-        echo Wallpaper change delay: ${delay%?} days
-        echo $delay | cat > $HOME/wallpaper-slider-data/data/delay.txt
+        echo Wallpaper change delay: ${delay%?} days.
+        echo $delay | cat > $HOME/wallpaperslider/data/delay.txt
         return
     else
         echo Invalid. $FORMAT
     fi
 }
 
-function print_version {
-    echo
-    echo "-------------------------------------------------------------------------------"
-    echo
-    echo wallpaper_slider version: $(<$HOME/wallpaper-slider-data/data/version.txt)
-    echo
-    echo "-------------------------------------------------------------------------------"
-    echo
-}
-
-function print_entered_info {
+function print_information {
     USER_NAME=$(logname)
-    script_name="wallpaper-slider-startup.service"
-    service_file="/home/$USER_NAME/.config/systemd/user/$script_name"
-    delay=$(<$HOME/wallpaper-slider-data/data/delay.txt)
+    script_name="wallpaper-slider.service"
+    service_file_home="/home/$USER_NAME/.config/systemd/user/$script_name"
+    service_file_sys="/etc/systemd/user/$script_name"
+    delay=$(<$HOME/wallpaperslider/data/delay.txt)
     echo Wallpaper folder path:
-    echo $(<$HOME/wallpaper-slider-data/data/path.txt)
+    echo $(<$HOME/wallpaperslider/data/path.txt)
     echo Wallpaper change delay:
 
     if [[ $delay == *m ]]; then
@@ -97,11 +88,21 @@ function print_entered_info {
         echo ${delay%?} days
     fi
     echo Set to run on startup?
-    if [[ -f $service_file ]]; then
+    if [[ -f $service_file_home ]]; then
+        echo True
+    elif [[ -f $service_file_sys ]]; then
         echo True
     else
         echo False
     fi
+
+    echo
+    echo "-------------------------------------------------------------------------------"
+    echo
+    echo wallpaper_slider version: $(<$HOME/wallpaperslider/data/version.txt)
+    echo
+    echo "-------------------------------------------------------------------------------"
+    echo
 }
 
 function help {
@@ -109,43 +110,68 @@ function help {
     echo
     echo "Options:"
     echo
-    echo "-p     Enter path to wallpapers directory"
+    echo "-p     Enter path to wallpapers directory."
     echo
-    echo "-d     Enter time delay between wallpaper changes in Seconds/Minutes/Hours/Days"
+    echo "-d     Enter time delay between wallpaper changes in Seconds/Minutes/Hours/Days."
     echo
-    echo "-a     Activates wallpaper-slider script. If already active, stops the wallpaper-slider script"
+    echo "-r     Set wallpaper-slider to run on startup. If already set to run on startup, running this command again will remove the startup script (Might require SUDO)."
     echo
-    echo "-r     Set wallpaper-slider to run on startup. If already set to run on startup, running this command again will remove the startup script"
+    echo "-i     Print user's settings and software information."
     echo
-    echo "-v     Print software version"
-    echo
-    echo "-i     Print user's settings"
-    echo
-    echo "-h     Print this help"
+    echo "-h     Print this help."
     echo
 }
 
 #make python venv
+#TODO, change to system level, fedora gnome does not have user level systemd directory
 function run {
 
     USER_NAME=$(logname)
 
-    script_name="wallpaper-slider-startup.service"
-    service_file="/home/$USER_NAME/.config/systemd/user/$script_name"
-    script_path="/home/$USER_NAME/wallpaper-slider-data/.bin/wallpaper_slider.py"
+    script_name="wallpaper-slider.service"
+    service_file_home="/home/$USER_NAME/.config/systemd/user/$script_name"
+    service_file_sys="/etc/systemd/user/$script_name"
+    script_path="/home/$USER_NAME/wallpaperslider/.bin/wallpaper_slider.py"
 
-    if [[ -f $service_file ]]; then
+    if [[ -f $service_file_home ]]; then
         echo wallpaper-slider: deactivating run on startup...
         systemctl --user disable $script_name
         systemctl --user daemon-reload
-        rm "$service_file"
+        rm "$service_file_home"
         exit 0
+
+    elif [[ -f $service_file_sys ]]; then
+        echo wallpaper-slider: deactivating run on startup...
+        systemctl disable $script_name
+        systemctl daemon-reload
+        sudo rm "$service_file_sys"
+        exit 0;
     fi
 
     echo wallpaper-slider: setting to run on startup...
     
+    # if user's os does not have user level systemd support, run at system level
+    if ! [[ -d "/home/$USER_NAME/.config/systemd/" ]]; then
+        sudo cat <<EOF > $service_file_sys
+[Unit]
+Description=Run wallpaper-slider Python script at startup
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3 $script_path
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+        systemctl daemon-reload
+        systemctl enable --now "$script_name"
+        exit 0
+    fi
+
     # creates systemmd service file
-    cat <<EOF > $service_file
+    cat <<EOF > $service_file_home
 [Unit]
 Description=Run wallpaper-slider Python script at startup
 After=network.target
@@ -164,30 +190,12 @@ EOF
     systemctl --user enable --now "$script_name"
 }
 
-# Runs the script, stops script if already running
-function activate {
-    USER_NAME=$(logname)
-    script_path="/home/$USER_NAME/wallpaper-slider-data/.bin/wallpaper_slider.py"
-
-    if pgrep -f "wallpaper_slider.py" > /dev/null; then
-        echo wallpaper-slider: deactivating script...
-        pkill -f "wallpaper_slider.py"
-        exit 0
-    fi
-
-    echo wallpaper-slider: running script...
-    nohup python3 "$script_path" > /dev/null 2>&1 &
-    exit 0
-
-}
-
-
 if [[ $# -eq 0 ]]; then
     echo "wallpaper-slider: try -h for help"
     exit 1
 fi
 
-while getopts "p d v i r a h" option; do
+while getopts "p d v i r h" option; do
     case $option in
         p)  # user enters absolute path to wallpapers
             get_path
@@ -199,13 +207,8 @@ while getopts "p d v i r a h" option; do
             exit
             ;;
         
-        v)  # displays software version
-            print_version
-            exit
-            ;;
-        
         i)  # displays current settings - path, delay
-            print_entered_info
+            print_information
             exit
             ;;
 
@@ -214,10 +217,6 @@ while getopts "p d v i r a h" option; do
             exit
             ;;
 
-        a)  # stops running the program
-            activate
-            exit
-            ;;
 
         h) # display help
             help

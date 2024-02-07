@@ -1,28 +1,25 @@
 #!/bin/bash
 
+# Requires sudo
 if [ "$EUID" -ne 0 ]; then
-    echo Error: wallpaper-slider requires root to install
+    echo Error: wallpaper-slider requires root to install.
     exit 1
 fi
 
 USER_HOME=$(getent passwd $SUDO_USER | cut -d: -f6)
 
-if ! [ -d $USER_HOME/wallpaper-slider-data ] && ! [ -f /usr/local/bin/wallpaper-slider ] && ! [ -f /usr/bin/wallpaper_slider.py ] && ! [ -f /etc/systemd/system/wallpaper-slider-startup.service ] && ! [ -f /etc/wallpaper-slider-gnome.txt ]; then
+if ! [ -d $USER_HOME/wallpaperslider ] && ! [ -f /usr/local/bin/wallpaper-slider ] && ! [ -f /usr/bin/wallpaper_slider.py ] && ! [ -f /etc/systemd/system/wallpaper-slider.service ] && ! [ -f /etc/wallpaper-slider-gnome.txt ]; then
     echo wallpaper-slider is not installed
 else
-    # requires sudo permissions, run 'sudo sh uninstall.sh'
-    rm -r $USER_HOME/wallpaper-slider-data
-    rm /usr/local/bin/wallpaper-slider 
+    rm -r $USER_HOME/wallpaperslider/
+    rm /usr/local/bin/wallpaper-slider
     pkill -f "wallpaper_slider.py"
-    # rm /usr/bin/wallpaper_slider.py
     rm /etc/wallpaper-slider-gnome.txt
-    rm $USER_HOME/.config/systemd/user/wallpaper-slider-startup.service
-
-    if ! [ -f /etc/systemd/system/wallpaper-slider-startup.service ]; then
-        echo wallpaper-slider-gnome uninstalled successfully!
-        exit 0
-    else
-        rm /etc/systemd/system/wallpaper-slider-startup.service
-        echo wallpaper-slider-gnome uninstalled successfully!
+    if [[ -f $USER_HOME/.config/systemd/user/wallpaper-slider.service ]]; then
+        rm $USER_HOME/.config/systemd/user/wallpaper-slider.service
+    elif [ -f /etc/systemd/system/wallpaper-slider.service ]; then
+        rm /etc/systemd/system/wallpaper-slider.service
     fi
+
+    echo wallpaper-slider-gnome uninstalled successfully!
 fi
