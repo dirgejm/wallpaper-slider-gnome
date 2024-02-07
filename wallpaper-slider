@@ -17,7 +17,7 @@ function get_path {
 
             file_type=$(file -b --mime-type "$file")
             
-            if [ "$file_type" != "image/jpeg" ] && [ "$file_type" != "image/png" ] && [ "$file_type" != "image/svg" ]; then
+            if [ "$file_type" != "image/jpeg" ] && [ "$file_type" != "image/png" ] && [ "$file_type" != "image/svg" ] && [ "$file_type" != "image/svg+xml" ]; then
                 echo  detected file format other than png / jpeg / svg, terminating process...
                 echo
                 echo file: $file
