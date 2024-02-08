@@ -1,11 +1,12 @@
 #!/bin/bash
 
-# script to setup wallpaper-slider, user can enter the path to their wallpaper directory and a delay
 function get_path {
     FORMAT=/path/to/your/wallpapers/WALLPAPERS/
     PATH_PATTERN="^/.*$"
     echo Directory must only contain png, jpeg, svg, tiff, and gif files.
     echo Enter full path to wallpapers folder: $FORMAT
+    echo Example: /home/james/backgrounds/
+    echo
     read path
     if [[ $path =~ $PATH_PATTERN ]] && [[ -d "$path" ]]; then
 
@@ -43,7 +44,7 @@ function enter_delay {
 
     delay_length=${#delay}
 
-    # checks $delay contains only integers apart from last char
+    # Checks $delay contains only integers apart from last char
     for ((i = 0; i < delay_length - 1; i++)); do
         char="${delay:i:1}"
         if ! [[ "$char" =~ [0-9] ]]; then
@@ -52,7 +53,7 @@ function enter_delay {
         fi
     done
 
-    # writes the entered delay into txt file to be used by wallpaper_slider.py
+    # Writes the entered delay into txt file to be used by wallpaper_slider.py
     if [[ "$delay" == *m ]]; then
         echo Wallpaper change delay: ${delay%?} minutes.
         echo $delay | cat > $HOME/wallpaperslider/data/delay.txt
@@ -68,8 +69,7 @@ function enter_delay {
 
     if pgrep -af "/usr/bin/python3 /home/$(logname)/wallpaperslider/.bin/wallpaper_slider.py" > /dev/null; then
         echo Restarting script...
-        pkill -f "python3 wallpaper_slider.py"
-        /usr/bin/python3 /home/$(logname)/wallpaperslider/.bin/wallpaper_slider.py &
+        systemctl --user restart wallpaper-slider.service
         echo Done!
         exit 0
     fi
@@ -102,11 +102,11 @@ function print_information {
     fi
 
     echo
-    echo "-------------------------------------------------------------------------------"
+    echo "-----------------------------"
     echo
     echo wallpaper_slider version: $(<$HOME/wallpaperslider/data/version.txt)
     echo
-    echo "-------------------------------------------------------------------------------"
+    echo "-----------------------------"
     echo
 }
 
@@ -145,11 +145,11 @@ function run {
         exit 0
     fi
 
-    echo wallpaper-slider: setting to run on startup...
+    echo wallpaper-slider: Enabling run on startup...
     
     # Checks if os has user level systemd directory, if not then creates the necessary directories
     if ! [[ -d "/home/$USER_NAME/.config/systemd/user/" ]]; then
-        echo Home systemd directory not detected, creating necessary directories...
+        echo Home systemd directory not detected, creating /home/$USER_NAME/.config/systemd/user/ directories...
         mkdir -p ~/.config/systemd/user/
         cat <<EOF > $service_file_home
 [Unit]
