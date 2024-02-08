@@ -1,27 +1,20 @@
 #!/bin/bash
 
+# Requires sudo
 if [ "$EUID" -ne 0 ]; then
     echo Error: wallpaper-slider requires root to install
     exit 1
 fi
 
-USER_HOME=$(getent passwd $SUDO_USER | cut -d: -f6)
 WPS_HOME_DIR="wallpaperslider"
-# checks if files exist in home dir, if wallpaper-slider file is in usr/loca/bin
-if [ -d $USER_HOME/$WPS_HOME_DIR ] && [ -f /usr/local/bin/wallpaper-slider ] && [ -f /usr/bin/wallpaper_slider.py ] && [ -f /etc/wallpaper-slider-gnome.txt ]; then
+if [ -d /home/&(logname)/$WPS_HOME_DIR ] && [ -f /usr/local/bin/wallpaper-slider ]; then
     echo
-    echo wallpaper-slider: Installed with version $(<$USER_HOME/$WPS_HOME_DIR/data/version.txt)
+    echo wallpaper-slider: Installed with version $(</home/&(logname)/$WPS_HOME_DIR/data/version.txt)
 else
-    # first command is not executed by super user
-    sudo -u $SUDO_USER cp -r $WPS_HOME_DIR $USER_HOME
-    # requires sudo permissions, run 'sudo ./install'
-    # path temporary
-    echo "$USER_HOME" | cat > /etc/wallpaper-slider-gnome.txt
+    sudo -u $SUDO_USER cp -r $WPS_HOME_DIR /home/$(logname)
     cp wallpaper-slider /usr/local/bin
     chmod +x /usr/local/bin/wallpaper-slider
-    chmod +rwx $USER_HOME/$WPS_HOME_DIR
-    # placing in home directory instead
-    # cp wallpaper_slider.py /usr/bin
+    chmod +rwx /home/$(logname)/$WPS_HOME_DIR
 
     echo
     echo Install successful!

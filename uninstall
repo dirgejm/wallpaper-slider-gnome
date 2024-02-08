@@ -6,27 +6,16 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
-USER_HOME=$(getent passwd $SUDO_USER | cut -d: -f6)
-
-if ! [ -d $USER_HOME/wallpaperslider ] && ! [ -f /usr/local/bin/wallpaper-slider ] && ! [ -f /usr/bin/wallpaper_slider.py ] && ! [ -f /etc/systemd/system/wallpaper-slider.service ] && ! [ -f /etc/wallpaper-slider-gnome.txt ]; then
-    echo wallpaper-slider is not installed
+if ! [ -d /home/$(logname)/wallpaperslider ] && ! [ -f /usr/local/bin/wallpaper-slider ] && ! [ -f /home/$(logname)/.config/systemd/user/wallpaper-slider.service ] && ! [ -f /home/$(logname)/.config/systemd/user/default.target.wants/wallpaper-slider.service ]; then
+    echo The software is not currrently installed on this system.
 else
-    rm -r $USER_HOME/wallpaperslider/
+    rm -r /home/$(logname)/wallpaperslider/
     rm /usr/local/bin/wallpaper-slider
     pkill -f "wallpaper_slider.py"
-    rm /etc/wallpaper-slider-gnome.txt
 
-    if [[ -f $USER_HOME/.config/systemd/user/wallpaper-slider.service ]]; then
-        rm $USER_HOME/.config/systemd/user/wallpaper-slider.service
-    elif [ -f /etc/systemd/system/wallpaper-slider.service ]; then
-        rm /etc/systemd/system/wallpaper-slider.service
-    fi
-
-    if [[ -f $USER_HOME/.config/systemd/user/multi-user.target.wants/wallpaper_slider.service ]]; then
-        rm $USER_HOME/.config/systemd/user/multi-user.target.wants/wallpaper_slider.service
-    elif [[ -f /etc/systemd/system/multi-user.target.wants/wallpaper_slider.service ]]; then
-        rm /etc/systemd/system/multi-user.target.wants/wallpaper_slider.service
+    if [[ -f /home/$(logname)/.config/systemd/user/wallpaper-slider.service ]]; then
+        rm /home/$(logname)/.config/systemd/user/wallpaper-slider.service
     fi
     
-    echo wallpaper-slider-gnome uninstalled successfully!
+    echo 'wallpaper-slider' Application successfully uninstalled.
 fi
