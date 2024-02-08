@@ -68,8 +68,9 @@ function enter_delay {
 
     echo Restarting script...
     pkill -f "python3 wallpaper_slider.py"
-    /usr/bin/python3 /home/$(logname)/wallpaperslider/.bin/wallpaper_slider.py
+    /usr/bin/python3 /home/$(logname)/wallpaperslider/.bin/wallpaper_slider.py &
     echo Done!
+    exit 0
 }
 
 function print_information {
