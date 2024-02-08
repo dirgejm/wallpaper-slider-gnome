@@ -4,7 +4,7 @@ function get_path {
     FORMAT=/path/to/your/wallpapers/WALLPAPERS/
     PATH_PATTERN="^/.*$"
     echo
-    echo Directory must contain files of type png / jpeg / svg / tiff / gif.
+    echo Directory must contain files of type png / jpeg / svg / tiff / gif
     echo
     echo Enter full path to wallpapers folder: $FORMAT
     echo Example: /home/james/backgrounds/
