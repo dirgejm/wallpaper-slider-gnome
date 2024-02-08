@@ -3,7 +3,9 @@
 function get_path {
     FORMAT=/path/to/your/wallpapers/WALLPAPERS/
     PATH_PATTERN="^/.*$"
-    echo Directory must only contain png, jpeg, svg, tiff, and gif files.
+    echo
+    echo Directory must contain files of type png / jpeg / svg / tiff / gif.
+    echo
     echo Enter full path to wallpapers folder: $FORMAT
     echo Example: /home/james/backgrounds/
     echo
@@ -44,6 +46,7 @@ function get_path {
 
 function enter_delay {
     FORMAT="Format: '5m' (5 minutes) | '8h' (8 hours) | '1d' (1 day)"
+    echo
     echo "Enter time delay | [$FORMAT]"
     echo "Example: For an interval of 10 minutes enter '10m'."
     echo
@@ -62,19 +65,24 @@ function enter_delay {
 
     # Writes the entered delay into txt file to be used by wallpaper_slider.py
     if [[ "$delay" == *m ]]; then
+        echo
         echo Wallpaper change delay: ${delay%?} minutes.
         echo $delay | cat > $HOME/wallpaperslider/data/delay.txt
     elif [[ "$delay" == *h ]]; then
+        echo
         echo Wallpaper change delay: ${delay%?} hours.
         echo $delay | cat > $HOME/wallpaperslider/data/delay.txt
     elif [[ "$delay" == *d ]]; then
+        echo
         echo Wallpaper change delay: ${delay%?} days.
         echo $delay | cat > $HOME/wallpaperslider/data/delay.txt
     else
+        echo
         echo Invalid. $FORMAT
     fi
 
     if pgrep -af "/usr/bin/python3 /home/$(logname)/wallpaperslider/.bin/wallpaper_slider.py" > /dev/null; then
+        echo
         echo Restarting script...
         systemctl --user restart wallpaper-slider.service
         echo Done!
@@ -120,17 +128,13 @@ function print_information {
 function help {
     
     echo
-    echo "Options:"
+    echo "Usage:"
     echo
-    echo "-p     Enter path to wallpapers directory."
-    echo
-    echo "-d     Enter time delay between wallpaper changes in Seconds/Minutes/Hours/Days."
-    echo
-    echo "-r     Set wallpaper-slider to run on startup. If already set to run on startup, running this command again will remove the startup script (Might require SUDO)."
-    echo
-    echo "-i     Print user's settings and software information."
-    echo
-    echo "-h     Print this help."
+    echo "  Set the wallpaper path:         'wallpaper-slider -p'"
+    echo "  Set the delay interval:         'wallpaper-slider -d'"
+    echo "  Enable / Disable script:        'wallpaper-slider -r'"
+    echo "  Show settings & software info:  'wallpaper-slider -i'"
+    echo "  Show this help:                 'wallpaper-slider -h'"
     echo
 }
 
