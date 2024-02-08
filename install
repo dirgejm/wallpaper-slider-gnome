@@ -18,16 +18,13 @@ else
 
     echo
     echo Install successful!
-    echo
     echo Invoke with "'wallpaper-slider'" command...
     echo
 fi
 
 echo Setup:
 echo
-echo "'wallpaper-slider -p'" Enter the path to your directory of wallpapers.
-echo
-echo "'wallpaper-slider -d'" Enter your desired delay in the appropriate format.
-echo
-echo "'wallpaper-slider -r'" Set to run on startup.
+echo "  Set the wallpaper path: 'wallpaper-slider -p'"
+echo "  Set the delay interval: 'wallpaper-slider -d'"
+echo "  Activate script: 'wallpaper-slider -r'"
 echo

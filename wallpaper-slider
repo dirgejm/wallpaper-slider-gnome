@@ -137,10 +137,11 @@ function help {
 #make python venv
 function run {
 
-    if ! [[ -s /home/$(logname)/wallpaperslider/data/delay.txt ]] || ! [[ -s /home/$(logname)/wallpaperslider/data/path.txt ]]; then
-        echo Please first enter a path and delay before running the program.
-        echo "Enter a path with 'wallpaper-slider -p'."
-        echo "Enter a delay interval with 'wallpaper-slider -d'." 
+    if [[ ! -s /home/$(logname)/wallpaperslider/data/delay.txt ]] && [[ ! -s /home/$(logname)/wallpaperslider/data/path.txt ]]; then
+        echo Error: Unable to proceed. Please first enter a wallpaper path and delay before running the program.
+        echo Usage:
+        echo "  Set the wallpaper path: 'wallpaper-slider -p'"
+        echo "  Set the delay interval: 'wallpaper-slider -d'"
         echo Terminating process...
         exit 0
     fi

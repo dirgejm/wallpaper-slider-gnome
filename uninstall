@@ -7,7 +7,7 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 if ! [ -d /home/$(logname)/wallpaperslider ] && ! [ -f /usr/local/bin/wallpaper-slider ] && ! [ -f /home/$(logname)/.config/systemd/user/wallpaper-slider.service ] && ! [ -f /home/$(logname)/.config/systemd/user/default.target.wants/wallpaper-slider.service ]; then
-    echo The software is not currrently installed on this system.
+    echo wallpaper-slider Software is not currrently installed on this system.
 else
     rm -r /home/$(logname)/wallpaperslider/
     rm /usr/local/bin/wallpaper-slider
@@ -17,5 +17,5 @@ else
         rm /home/$(logname)/.config/systemd/user/wallpaper-slider.service
     fi
     
-    echo 'wallpaper-slider' Application successfully uninstalled.
+    echo 'wallpaper-slider' Successfully uninstalled.
 fi

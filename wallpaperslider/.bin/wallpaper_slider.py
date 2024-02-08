@@ -5,9 +5,17 @@ from os import listdir
 from os.path import isfile, join
 import time
 import random
+import subprocess
+import sys
 
-with open(f"/etc/wallpaper-slider-gnome.txt", "r") as file:
-    home = file.readline()
+cmd = "logname"
+try:
+    output = subprocess.check_output(cmd, shell=True, text=True)
+except subprocess.CalledProcessError as e:
+    print(f"Error; {e}")
+    sys.exit(1)
+    
+home = f"/home/{output}"
 home = home.replace("\n", "")
 
 index = 0
