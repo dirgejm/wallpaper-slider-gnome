@@ -144,9 +144,11 @@ function run {
 
     if [[ ! -s /home/$(logname)/wallpaperslider/data/delay.txt ]] && [[ ! -s /home/$(logname)/wallpaperslider/data/path.txt ]]; then
         echo Error: Unable to proceed. Please first enter a wallpaper path and delay before running the program.
+        echo
         echo Usage:
         echo "  Set the wallpaper path: 'wallpaper-slider -p'"
         echo "  Set the delay interval: 'wallpaper-slider -d'"
+        echo
         echo Terminating process...
         exit 0
     fi
