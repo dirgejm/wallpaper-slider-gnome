@@ -29,10 +29,16 @@ function get_path {
 
         echo Path to wallpapers: $path
         echo $path | cat > $HOME/wallpaperslider/data/path.txt
-        exit 0
     else
         echo Invalid directory. Enter in format $FORMAT
         get_path
+    fi
+
+    if pgrep -af "/usr/bin/python3 /home/$(logname)/wallpaperslider/.bin/wallpaper_slider.py" > /dev/null; then
+        echo Restarting script...
+        systemctl --user restart wallpaper-slider.service
+        echo Done!
+        exit 0
     fi
 }
 
@@ -131,14 +137,14 @@ function help {
 #make python venv
 function run {
 
-    if ! [[ -s /home/$(logname)/wallpaperslider/data/delay.txt ]] || [[ -s /home/$(logname)/wallpaperslider/data/path.txt ]]; then
+    if ! [[ -s /home/$(logname)/wallpaperslider/data/delay.txt ]] || ! [[ -s /home/$(logname)/wallpaperslider/data/path.txt ]]; then
         echo Please first enter a path and delay before running the program.
         echo "Enter a path with 'wallpaper-slider -p'."
         echo "Enter a delay interval with 'wallpaper-slider -d'." 
         echo Terminating process...
         exit 0
     fi
-    
+
     USER_NAME=$(logname)
 
     service_name="wallpaper-slider.service"
