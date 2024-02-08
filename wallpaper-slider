@@ -56,15 +56,12 @@ function enter_delay {
     if [[ "$delay" == *m ]]; then
         echo Wallpaper change delay: ${delay%?} minutes.
         echo $delay | cat > $HOME/wallpaperslider/data/delay.txt
-        return
     elif [[ "$delay" == *h ]]; then
         echo Wallpaper change delay: ${delay%?} hours.
         echo $delay | cat > $HOME/wallpaperslider/data/delay.txt
-        return
     elif [[ "$delay" == *d ]]; then
         echo Wallpaper change delay: ${delay%?} days.
         echo $delay | cat > $HOME/wallpaperslider/data/delay.txt
-        return
     else
         echo Invalid. $FORMAT
     fi
@@ -148,7 +145,7 @@ function run {
     echo wallpaper-slider: setting to run on startup...
     
     # Checks if os has user level systemd directory, if not then creates the necessary directories
-    if ! [[ -d "/home/$USER_NAME/.config/systemd/" ]]; then
+    if ! [[ -d "/home/$USER_NAME/.config/systemd/user/" ]]; then
         echo Home systemd directory not detected, creating necessary directories...
         mkdir -p ~/.config/systemd/user/
         cat <<EOF > $service_file_home
