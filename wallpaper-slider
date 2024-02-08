@@ -29,6 +29,7 @@ function get_path {
             fi
         done
 
+        echo
         echo Path to wallpapers: $path
         echo $path | cat > $HOME/wallpaperslider/data/path.txt
     else
