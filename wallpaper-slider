@@ -130,7 +130,7 @@ function run {
 
     service_name="wallpaper-slider.service"
     service_file_home="/home/$USER_NAME/.config/systemd/user/$service_name"
-    service_file_sys="/etc/systemd/system/$service_name"
+    # service_file_sys="/etc/systemd/system/$service_name"
     script_path="/home/$USER_NAME/wallpaperslider/.bin/wallpaper_slider.py"
 
     if [[ -f $service_file_home ]]; then
@@ -140,21 +140,22 @@ function run {
         rm "$service_file_home"
         exit 0
 
-    elif [[ -f $service_file_sys ]]; then
-        echo wallpaper-slider: deactivating run on startup...
-        systemctl disable $service_name
-        systemctl daemon-reload
-        sudo rm "$service_file_sys"
-        exit 0;
+    # elif [[ -f $service_file_sys ]]; then
+    #     echo wallpaper-slider: deactivating run on startup...
+    #     systemctl disable $service_name
+    #     systemctl daemon-reload
+    #     sudo rm "$service_file_sys"
+    #     exit 0;
     fi
 
     echo wallpaper-slider: setting to run on startup...
     
     # Checks if os has user level systemd directory, performs at system level
-    if [[ -d "/home/$USER_NAME/.config/systemd/" ]]; then
-        echo Placing in root systemd directory...
-        export DISPLAY=:0
-        sudo tee "$service_file_sys" > /dev/null <<EOF
+    if ! [[ -d "/home/$USER_NAME/.config/systemd/" ]]; then
+        # CREATE THE DIRECTORIES AND PLACE THEM THERE
+        echo Home systemd directory not detected, creating necessary directories...
+        mkdir -p ~/.config/systemd/user/
+        cat <<EOF > $service_file_home
 [Unit]
 Description=Run wallpaper-slider Python script at startup
 After=network.target
@@ -165,10 +166,15 @@ Restart=on-failure
 RestartSec=5
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=default.target
 EOF
-        sudo systemctl daemon-reload
-        systemctl enable --now "$service_name"
+
+        if [[ -f $service_file_home ]]; then
+            echo service file in user home directory created successfully
+        fi
+
+        systemctl --user daemon-reload
+        systemctl --user enable --now "$service_name"
         exit 0
     fi
 
