@@ -6,14 +6,18 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
-if ! [ -d /home/$(logname)/wallpaperslider ] && ! [ -f /usr/local/bin/wallpaper-slider ] && ! [ -f /home/$(logname)/.config/systemd/user/wallpaper-slider.service ] && ! [ -f /home/$(logname)/.config/systemd/user/default.target.wants/wallpaper-slider.service ]; then
-    echo wallpaper-slider Software is not currrently installed on this system.
+if  ! [ -d "/home/$(logname)/wallpaperslider" ] &&
+    ! [ -f "/usr/local/bin/wallpaper-slider" ] &&
+    ! [ -f "/home/$(logname)/.config/systemd/user/wallpaper-slider.service" ] &&
+    ! [ -f "/home/$(logname)/.config/systemd/user/default.target.wants/wallpaper-slider.service" ]; then
+    echo Error: wallpaper-slider is not currrently installed on this system.
+    exit 1
 else
     rm -r /home/$(logname)/wallpaperslider/
     rm /usr/local/bin/wallpaper-slider
     pkill -f "wallpaper_slider.py"
 
-    if [[ -f /home/$(logname)/.config/systemd/user/wallpaper-slider.service ]]; then
+    if [[ -f "/home/$(logname)/.config/systemd/user/wallpaper-slider.service" ]]; then
         rm /home/$(logname)/.config/systemd/user/wallpaper-slider.service
     fi
     
