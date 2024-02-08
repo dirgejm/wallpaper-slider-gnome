@@ -4,24 +4,24 @@
 function get_path {
     FORMAT=/path/to/your/wallpapers/WALLPAPERS/
     PATH_PATTERN="^/.*$"
-    echo Directory must only contain png, jpeg, svg, tiff, and gif files
+    echo Directory must only contain png, jpeg, svg, tiff, and gif files.
     echo Enter full path to wallpapers folder: $FORMAT
     read path
     if [[ $path =~ $PATH_PATTERN ]] && [[ -d "$path" ]]; then
 
         for file in "$path"/*; do
             if ! [ -f "$file" ]; then
-                echo detected subdirectory, terminating process...
+                echo Detected subdirectory, terminating process...
                 return
             fi
 
             file_type=$(file -b --mime-type "$file")
             
             if [ "$file_type" != "image/jpeg" ] && [ "$file_type" != "image/png" ] && [ "$file_type" != "image/svg" ] && [ "$file_type" != "image/svg+xml" ] && [ "$file_type" != "image/tiff" ] && [ "$file_type" != "image/gif" ]; then
-                echo  detected file format other than png / jpeg / svg, terminating process...
+                echo  Detected file format other than png / jpeg / svg, terminating process...
                 echo
-                echo file: $file
-                echo file type: $file_type
+                echo File: $file
+                echo File type: $file_type
                 return
             fi
         done
@@ -68,6 +68,11 @@ function enter_delay {
     else
         echo Invalid. $FORMAT
     fi
+
+    echo Restarting script...
+    pkill -f "python3 wallpaper_slider.py"
+    /usr/bin/python3 /home/$(logname)/wallpaperslider/.bin/wallpaper_slider.py
+    echo Done!
 }
 
 function print_information {
@@ -123,7 +128,6 @@ function help {
 }
 
 #make python venv
-#TODO, change to system level, fedora gnome does not have user level systemd directory
 function run {
 
     USER_NAME=$(logname)
@@ -134,25 +138,17 @@ function run {
     script_path="/home/$USER_NAME/wallpaperslider/.bin/wallpaper_slider.py"
 
     if [[ -f $service_file_home ]]; then
-        echo wallpaper-slider: deactivating run on startup...
+        echo wallpaper-slider: Deactivating run on startup...
         systemctl --user disable $service_name
         systemctl --user daemon-reload
         rm "$service_file_home"
         exit 0
-
-    # elif [[ -f $service_file_sys ]]; then
-    #     echo wallpaper-slider: deactivating run on startup...
-    #     systemctl disable $service_name
-    #     systemctl daemon-reload
-    #     sudo rm "$service_file_sys"
-    #     exit 0;
     fi
 
     echo wallpaper-slider: setting to run on startup...
     
-    # Checks if os has user level systemd directory, performs at system level
+    # Checks if os has user level systemd directory, if not then creates the necessary directories
     if ! [[ -d "/home/$USER_NAME/.config/systemd/" ]]; then
-        # CREATE THE DIRECTORIES AND PLACE THEM THERE
         echo Home systemd directory not detected, creating necessary directories...
         mkdir -p ~/.config/systemd/user/
         cat <<EOF > $service_file_home
@@ -170,7 +166,7 @@ WantedBy=default.target
 EOF
 
         if [[ -f $service_file_home ]]; then
-            echo service file in user home directory created successfully
+            echo Service file in user home directory created successfully!
         fi
 
         systemctl --user daemon-reload
@@ -200,7 +196,7 @@ EOF
 }
 
 if [[ $# -eq 0 ]]; then
-    echo "wallpaper-slider: try -h for help"
+    echo "wallpaper-slider: Try -h for help."
     exit 1
 fi
 
@@ -233,7 +229,7 @@ while getopts "p d v i r h" option; do
             ;;
         
         *) # if unknown, exits
-            echo "wallpaper-slider: wrong invocation, try -h for options."
+            echo "wallpaper-slider: Wrong invocation, try -h for options."
             exit
             ;;
     esac

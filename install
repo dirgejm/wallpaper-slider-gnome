@@ -10,7 +10,7 @@ WPS_HOME_DIR="wallpaperslider"
 # checks if files exist in home dir, if wallpaper-slider file is in usr/loca/bin
 if [ -d $USER_HOME/$WPS_HOME_DIR ] && [ -f /usr/local/bin/wallpaper-slider ] && [ -f /usr/bin/wallpaper_slider.py ] && [ -f /etc/wallpaper-slider-gnome.txt ]; then
     echo
-    echo wallpaper-slider installed with version $(<$USER_HOME/$WPS_HOME_DIR/data/version.txt)
+    echo wallpaper-slider: Installed with version $(<$USER_HOME/$WPS_HOME_DIR/data/version.txt)
 else
     # first command is not executed by super user
     sudo -u $SUDO_USER cp -r $WPS_HOME_DIR $USER_HOME
