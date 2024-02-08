@@ -7,9 +7,9 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 WPS_HOME_DIR="wallpaperslider"
-if [ -d /home/&(logname)/$WPS_HOME_DIR ] && [ -f /usr/local/bin/wallpaper-slider ]; then
+if [ -d /home/$(logname)/$WPS_HOME_DIR ] && [ -f /usr/local/bin/wallpaper-slider ]; then
     echo
-    echo wallpaper-slider: Installed with version $(</home/&(logname)/$WPS_HOME_DIR/data/version.txt)
+    echo wallpaper-slider: Installed with version $(</home/$(logname)/$WPS_HOME_DIR/data/version.txt)
 else
     sudo -u $SUDO_USER cp -r $WPS_HOME_DIR /home/$(logname)
     cp wallpaper-slider /usr/local/bin
